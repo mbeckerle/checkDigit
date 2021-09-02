@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:cd="urn:checkDigit"
+  targetNamespace="urn:checkDigit"
+  elementFormDefault="unqualified">
+
+  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+
+      <dfdl:format ref="cd:GeneralFormat" />
+
+      <dfdl:defineVariable name="checkDigit" type="unsignedInt"/>
+
+      <dfdl:defineFormat name="checkDigitExplicit">
+        <!-- up to an explicit length limit, only digits are totaled. Other characters
+             are ignored --> 
+        <dfdl:format layerTransform="checkDigitExplicit" layerLengthKind="explicit"/>
+      </dfdl:defineFormat>
+
+      <dfdl:defineFormat name="checkDigitImplicit">
+        <!-- up to but not including the first non-digit character --> 
+        <dfdl:format layerTransform="checkDigitExplicit" layerLengthKind="implicit"/>
+      </dfdl:defineFormat>
+     
+    </appinfo>
+  </annotation>
+
+</schema>

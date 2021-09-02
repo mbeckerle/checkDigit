@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tdml:testSuite suiteName="Gpssps" description="Gpssps tests"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ex="http://example.com"
+  xmlns:cd="urn:checkDigit"
+  defaultRoundTrip="onePass">
+
+  <tdml:defineSchema name="checkDigit1" elementFormDefault="unqualified" useDefaultNamespace="false"
+    xmlns="http://www.w3.org/2001/XMLSchema">
+
+    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <import 
+      namespace="urn:checkDigit"
+      schemaLocation="com/owlcyberdefense/misc/xsd/checkDigitLayer.dfdl.xsd"/>
+
+
+    <element name="r">
+       <complexType>
+          <sequence>
+            <annotation>
+              <appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:newVariableInstance ref="cd:checkDigit"/>
+              </appinfo>
+            </annotation>
+            <sequence>
+              <sequence dfdl:ref="cd:checkDigitExplicit" dfdl:layerLength="5">
+                <element name="value" type="ex:u5"/>
+              </sequence>
+              <element name="cd" type="ex:u1"
+                       dfdl:outputValueCalc='{ $cd:checkDigit }'/> 
+              <annotation><appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert 
+                    failureType="recoverableError" 
+                    test='{ cd eq $cd:checkDigit }'
+                    message='{ fn:concat("Incorrect check digit: ", cd, ". Should be: ", $cd:checkDigit, "."}'/>
+              </appinfo></annotation>
+            </sequence>
+          </sequence>
+       </complexType>
+    </element>
+               
+
+     <simpleType name="u5" dfdl:length="5">
+       <restriction base="ex:fixedInt"/>
+     </simpleType>
+
+     <simpleType name="u1" dfdl:length="1">
+       <restriction base="ex:fixedInt"/>
+     </simpleType>
+
+     <simpleType name="fixedInt" dfdl:lengthKind="explicit" 
+       dfdl:textNumberPattern="########0">
+       <xs:restriction base="unsignedInt"/>
+     </simpleType>
+         
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_checkDigit_01" root="r" model="checkDigit1">
+    <tdml:document>12345:5</tdml:document>
+    <tdml:infoset>
+      <ex:r>
+       <value>12345</value>
+       <cd>5</cd>
+      </ex:r>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
